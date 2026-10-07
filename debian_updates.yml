@@ -1,22 +1,35 @@
 ---
-- name: Debian Server updaten und aufräumen
+- name: Debian/Ubuntu Server und Docker updaten, aufräumen und ggf. neustarten
   hosts: all
   become: yes
 
   tasks:
-    - name: Apt-Cache aktualisieren und alle Pakete upgraden
-      apt:
+    - name: Docker Repository aktivieren (falls als .disabled vorhanden)
+      ansible.builtin.command:
+        cmd: mv /etc/apt/sources.list.d/docker.list.disabled /etc/apt/sources.list.d/docker.list
+      args:
+        creates: /etc/apt/sources.list.d/docker.list
+      ignore_errors: yes
+
+    - name: Codenamen in Docker Repository auf resolute korrigieren
+      ansible.builtin.lineinfile:
+        path: /etc/apt/sources.list.d/docker.list
+        regexp: '^deb.*download\.docker\.com'
+        line: 'deb [arch=amd64 signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu resolute stable'
+
+    - name: Apt-Cache aktualisieren und alle Pakete upgraden (inkl. Docker)
+      ansible.builtin.apt:
         update_cache: yes
         upgrade: safe
         autoremove: yes
 
     - name: Prüfen, ob ein Neustart erforderlich ist
-      stat:
+      ansible.builtin.stat:
         path: /var/run/reboot-required
       register: reboot_required
 
     - name: Server neu starten, falls ein Kernel-Update das erfordert
-      reboot:
+      ansible.builtin.reboot:
         msg: "Automatischer Neustart durch Ansible nach System-Update"
         connect_timeout: 5
         reboot_timeout: 300
