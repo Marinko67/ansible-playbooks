@@ -4,22 +4,7 @@
   become: yes
 
   tasks:
-    - name: Prüfen ob docker.list.disabled existiert und ggf. aktivieren
-      ansible.builtin.shell: |
-        if [ -f /etc/apt/sources.list.d/docker.list.disabled ]; then
-          mv /etc/apt/sources.list.d/docker.list.disabled /etc/apt/sources.list.d/docker.list
-        fi
-      args:
-        executable: /bin/bash
-
-    - name: Codenamen in Docker Repository auf resolute korrigieren (falls vorhanden)
-      ansible.builtin.lineinfile:
-        path: /etc/apt/sources.list.d/docker.list
-        regexp: '^deb.*download\.docker\.com'
-        line: 'deb [arch=amd64 signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu resolute stable'
-      ignore_errors: yes
-
-    - name: Apt-Cache aktualisieren und alle Pakete upgraden
+    - name: Apt-Cache aktualisieren und alle Pakete (inkl. Docker) upgraden
       ansible.builtin.apt:
         update_cache: yes
         upgrade: safe
