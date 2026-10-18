@@ -1,6 +1,6 @@
 ---
 - name: Proxmox Produkt-Familie Update (PVE, PBS, PDM)
-  hosts: proxmox_all
+  hosts: proxmox_nodes
   become: true
   serial: 1  # Bei Clustern (wie PVE) weiterhin wichtig
   
