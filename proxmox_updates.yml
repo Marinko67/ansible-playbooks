@@ -1,0 +1,32 @@
+---
+- name: Proxmox Produkt-Familie Update (PVE, PBS, PDM)
+  hosts: proxmox_all
+  become: true
+  serial: 1  # Bei Clustern (wie PVE) weiterhin wichtig
+  
+  tasks:
+    - name: Update apt repo and cache
+      ansible.builtin.apt:
+        update_cache: true
+        cache_valid_time: 3600
+
+    - name: Run dist-upgrade
+      ansible.builtin.apt:
+        upgrade: dist
+        autoremove: true
+      register: apt_upgrade
+
+    - name: Aktuell laufenden Kernel ermitteln
+      ansible.builtin.shell: uname -r
+      register: running_kernel
+      changed_when: false
+
+    - name: Neuesten installierten Kernel im Boot-Verzeichnis ermitteln
+      ansible.builtin.shell: ls -t /boot/vmlinuz-* | head -1 | sed 's#/boot/vmlinuz-##'
+      register: newest_kernel
+      changed_when: false
+
+    - name: Warnung ausgeben, wenn ein Neustart wegen neuem Kernel nötig ist
+      ansible.builtin.debug:
+        msg: "⚠️ ACHTUNG: Auf '{{ inventory_hostname }}' wurde ein neuer Kernel installiert (Neu: {{ newest_kernel.stdout }} | Aktiv: {{ running_kernel.stdout }}). Ein Neustart ist erforderlich!"
+      when: running_kernel.stdout != newest_kernel.stdout
