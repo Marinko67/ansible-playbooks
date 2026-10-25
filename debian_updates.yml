@@ -1,6 +1,5 @@
 ---
-- name: Server und Docker updaten, Hawser aktualisieren, aufräumen und ggf. neustarten
-
+- name: Server und Docker updaten, aufräumen und ggf. neustarten
   hosts: all
   become: yes
 
@@ -10,17 +9,6 @@
         update_cache: yes
         upgrade: safe
         autoremove: yes
-
-    - name: Neuestes Hawser-Image herunterladen (Docker Compose Pull)
-      ansible.builtin.shell:
-        cmd: docker compose pull hawser
-
-    - name: Hawser-Container mit neuem Image aktualisieren und starten
-      ansible.builtin.shell:
-        cmd: docker compose up -d hawser
-
-    - name: Alte, gestoppte Container und ungenutzte Docker-Ressourcen aufräumen
-      ansible.builtin.shell:
 
     - name: Prüfen, ob ein Neustart erforderlich ist
       ansible.builtin.stat:
