@@ -13,17 +13,17 @@
 
     - name: Neuestes Hawser-Image herunterladen (Docker Compose Pull)
       ansible.builtin.command:
-        cmd: docker compose pull hawser
+        cmd: /usr/bin/docker compose pull hawser
         chdir: "/root"
 
     - name: Hawser-Container mit neuem Image aktualisieren und starten
       ansible.builtin.command:
-        cmd: docker compose up -d hawser
+        cmd: /usr/bin/docker compose up -d hawser
         chdir: "/root"
 
     - name: Alte, gestoppte Container und ungenutzte Docker-Ressourcen aufräumen
       ansible.builtin.command:
-        cmd: docker system prune -f
+        cmd: /usr/bin/docker system prune -f
 
     - name: Prüfen, ob ein Neustart erforderlich ist
       ansible.builtin.stat:
